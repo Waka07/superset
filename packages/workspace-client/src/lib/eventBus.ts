@@ -24,8 +24,7 @@ type EventType =
 	| "workspace:create-settled"
 	| "project:changed"
 	| "tag-folders:changed"
-	| "page-watch:changed"
-	| "page:open-requested";
+	| "page-watch:changed";
 
 interface FsEventsPayload {
 	events: FsWatchEvent[];
@@ -112,16 +111,6 @@ export interface PageWatchChangedPayload {
 	occurredAt: number;
 }
 
-type PageOpenRequestedMessage = Extract<
-	ServerMessage,
-	{ type: "page:open-requested" }
->;
-
-export type PageOpenRequestedPayload = Omit<
-	PageOpenRequestedMessage,
-	"type" | "workspaceId"
->;
-
 type TagFoldersChangedMessage = Extract<
 	ServerMessage,
 	{ type: "tag-folders:changed" }
@@ -161,12 +150,7 @@ type EventListener<T extends EventType> = T extends "fs:events"
 													workspaceId: string,
 													payload: PageWatchChangedPayload,
 												) => void
-											: T extends "page:open-requested"
-												? (
-														workspaceId: string,
-														payload: PageOpenRequestedPayload,
-													) => void
-												: never;
+											: never;
 
 interface ListenerEntry {
 	type: EventType;
@@ -305,8 +289,7 @@ function handleMessage(state: ConnectionState, data: unknown): void {
 			message.type === "port:changed" ||
 			message.type === "workspace:changed" ||
 			message.type === "workspace:create-settled" ||
-			message.type === "page-watch:changed" ||
-			message.type === "page:open-requested"
+			message.type === "page-watch:changed"
 				? message.workspaceId
 				: message.type === "project:changed"
 					? message.projectId
@@ -356,12 +339,6 @@ function handleMessage(state: ConnectionState, data: unknown): void {
 			(entry.callback as EventListener<"page-watch:changed">)(
 				message.workspaceId,
 				{ occurredAt: message.occurredAt },
-			);
-		} else if (message.type === "page:open-requested") {
-			const { type: _type, workspaceId, ...payload } = message;
-			(entry.callback as EventListener<"page:open-requested">)(
-				workspaceId,
-				payload,
 			);
 		} else if (message.type === "port:changed") {
 			(entry.callback as EventListener<"port:changed">)(message.workspaceId, {

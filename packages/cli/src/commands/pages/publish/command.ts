@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { readFileSync, statSync } from "node:fs";
 import { basename, extname, resolve } from "node:path";
 import { boolean, CLIError, positional, string } from "@superset/cli-framework";
@@ -10,7 +11,6 @@ import {
 } from "./utils/collectDirectoryPublish";
 import { publishResult } from "./utils/publishResult";
 import { registerWatch, watchTerminalId } from "./utils/registerWatch";
-import { requestPageOpen } from "./utils/requestOpen";
 import {
 	EXTERNAL_ENTRY_PREFIX,
 	externalEntryPath,
@@ -198,21 +198,14 @@ export default command({
 		}
 
 		let openNote: string | null = null;
-		if (page.version === 1) {
+		if (page.version === 1 && workspaceId) {
+			const params = new URLSearchParams({
+				pageId: page.id,
+				pageSlug: page.slug,
+				focusRequestId: randomUUID(),
+			});
 			try {
-				if (workspaceId && organizationId) {
-					await requestPageOpen({
-						pageId: page.id,
-						slug: page.slug,
-						title: page.title,
-						workspaceId,
-						organizationId,
-						userJwt: ctx.bearer,
-						api: ctx.api,
-					});
-				} else {
-					await openUrl(page.url);
-				}
+				await openUrl(`superset://v2-workspace/${workspaceId}?${params}`);
 			} catch (error) {
 				openNote = `Could not open the page: ${
 					error instanceof Error ? error.message : String(error)

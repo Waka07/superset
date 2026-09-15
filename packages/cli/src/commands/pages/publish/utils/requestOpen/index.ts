@@ -1,1 +1,0 @@
-export { requestPageOpen } from "./requestOpen";

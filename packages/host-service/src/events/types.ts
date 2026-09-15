@@ -239,16 +239,6 @@ export interface PageWatchChangedMessage {
 	occurredAt: number;
 }
 
-export interface PageOpenRequestedMessage {
-	type: "page:open-requested";
-	workspaceId: string;
-	pageId: string;
-	slug: string;
-	title: string;
-	requestId: string;
-	occurredAt: number;
-}
-
 export type ServerMessage =
 	| FsEventsMessage
 	| GitChangedMessage
@@ -261,7 +251,6 @@ export type ServerMessage =
 	| ProjectChangedMessage
 	| TagFoldersChangedMessage
 	| PageWatchChangedMessage
-	| PageOpenRequestedMessage
 	| EventBusErrorMessage;
 
 // ── Client → Server ────────────────────────────────────────────────

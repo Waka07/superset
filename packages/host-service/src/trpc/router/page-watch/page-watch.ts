@@ -3,14 +3,11 @@ import { z } from "zod";
 import type { PageWatchStatus } from "../../../page-watch/index.ts";
 import { protectedProcedure, router } from "../../index";
 
-const pageRefSchema = z.object({
+const assignInputSchema = z.object({
 	pageId: z.string().uuid(),
 	slug: z.string().min(1),
 	title: z.string().min(1),
 	workspaceId: z.string().min(1),
-});
-
-const assignInputSchema = pageRefSchema.extend({
 	terminalId: z.string().min(1),
 	agentId: z.string().min(1).nullable().default(null),
 });
@@ -20,8 +17,6 @@ const pageInputSchema = z.object({ pageId: z.string().uuid() });
 const listInputSchema = z
 	.object({ workspaceId: z.string().min(1).optional() })
 	.optional();
-
-const requestOpenInputSchema = pageRefSchema;
 
 export const pageWatchRouter = router({
 	assign: protectedProcedure
@@ -36,18 +31,6 @@ export const pageWatchRouter = router({
 				});
 			}
 			return ctx.runtime.pageWatch.list(input.workspaceId);
-		}),
-
-	requestOpen: protectedProcedure
-		.input(requestOpenInputSchema)
-		.mutation(({ ctx, input }) => {
-			const requestId = crypto.randomUUID();
-			ctx.eventBus.broadcastPageOpenRequested({
-				...input,
-				requestId,
-				occurredAt: Date.now(),
-			});
-			return { requestId };
 		}),
 
 	unwatch: protectedProcedure
