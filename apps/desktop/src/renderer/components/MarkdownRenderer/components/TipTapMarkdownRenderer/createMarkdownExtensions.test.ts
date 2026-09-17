@@ -6,7 +6,7 @@ import { GlobalRegistrator } from "@happy-dom/global-registrator";
 const alreadyRegistered = GlobalRegistrator.isRegistered;
 if (!alreadyRegistered) GlobalRegistrator.register();
 
-const { afterAll, describe, expect, it } = await import("bun:test");
+const { afterAll, describe, expect, it, spyOn } = await import("bun:test");
 const { Editor } = await import("@tiptap/core");
 const { createMarkdownExtensions } = await import("./createMarkdownExtensions");
 
@@ -41,6 +41,56 @@ function roundTrip(markdown: string): string {
 		editor.destroy();
 	}
 }
+
+describe("preview links", () => {
+	it.each([
+		"a",
+		"strong",
+	])("opens a link when clicking its %s element in an editable preview", (selector) => {
+		const markdown = "[**Example**](https://example.com/)";
+		const editor = createEditor(markdown);
+		const open = spyOn(window, "open").mockReturnValue(null);
+		try {
+			const target = editor.view.dom.querySelector(selector);
+			expect(target).not.toBeNull();
+			const event = new MouseEvent("click", { button: 0 });
+			Object.defineProperty(event, "target", { value: target });
+
+			const handled = editor.view.someProp("handleClick", (handler) =>
+				handler(editor.view, 1, event),
+			);
+
+			expect(handled).toBe(true);
+			expect(open).toHaveBeenCalledTimes(1);
+			expect(open).toHaveBeenCalledWith("https://example.com/", "_blank");
+			expect(getMarkdown(editor)).toBe(markdown);
+			expect(editor.isEditable).toBe(true);
+		} finally {
+			open.mockRestore();
+			editor.destroy();
+		}
+	});
+
+	it("does not open a link on right-click", () => {
+		const editor = createEditor("[Example](https://example.com/)");
+		const open = spyOn(window, "open").mockReturnValue(null);
+		try {
+			const event = new MouseEvent("click", { button: 2 });
+			Object.defineProperty(event, "target", {
+				value: editor.view.dom.querySelector("a"),
+			});
+
+			editor.view.someProp("handleClick", (handler) =>
+				handler(editor.view, 1, event),
+			);
+
+			expect(open).not.toHaveBeenCalled();
+		} finally {
+			open.mockRestore();
+			editor.destroy();
+		}
+	});
+});
 
 describe("image attribute parsing", () => {
 	// @tiptap/core's default attribute parser (fromString) coerces
