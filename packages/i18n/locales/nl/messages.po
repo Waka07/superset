@@ -2620,6 +2620,9 @@ msgstr "Branchnaam is niet beschikbaar"
 msgid "Branch names cannot end with a space."
 msgstr "Branchnamen mogen niet op een spatie eindigen."
 
+msgid "Branch naming"
+msgstr "Branchnamen"
+
 msgid "Branch prefix"
 msgstr "Branchprefix"
 
@@ -4719,6 +4722,9 @@ msgstr "Aangepast"
 
 msgid "Custom agent…"
 msgstr "Eigen agent…"
+
+msgid "Custom branch name"
+msgstr "Aangepaste branchnaam"
 
 msgid "Custom components beyond the shadcn set"
 msgstr "Eigen componenten buiten de shadcn-set"
@@ -13320,6 +13326,9 @@ msgstr "Sneltoets al in gebruik"
 msgid "Show"
 msgstr "Tonen"
 
+msgid "Show a branch name field above the workspace creation prompt"
+msgstr "Toon een veld voor de branchnaam boven de prompt voor het maken van een werkruimte"
+
 msgid "Show a confirmation dialog when quitting the app"
 msgstr "Toon een bevestiging bij het afsluiten van de app"
 
@@ -13346,6 +13355,9 @@ msgstr "Gesloten tonen"
 
 msgid "Show CPU and memory usage in the top bar"
 msgstr "Toon CPU- en geheugengebruik in de bovenbalk"
+
+msgid "Show custom branch name input"
+msgstr "Invoerveld voor aangepaste branchnaam tonen"
 
 msgid "Show details"
 msgstr "Details tonen"
