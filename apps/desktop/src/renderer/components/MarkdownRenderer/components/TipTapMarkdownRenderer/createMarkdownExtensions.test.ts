@@ -44,46 +44,29 @@ function roundTrip(markdown: string): string {
 
 describe("preview links", () => {
 	it.each([
-		"a",
-		"strong",
-	])("opens a link when clicking its %s element in an editable preview", (selector) => {
-		const markdown = "[**Example**](https://example.com/)";
-		const editor = createEditor(markdown);
+		true,
+		false,
+	])("never opens a link itself when editable is %p", (editable) => {
+		const editor = new Editor({
+			editable,
+			extensions: createMarkdownExtensions({
+				editable,
+				onSaveRef: { current: undefined },
+			}),
+			content: "[**Example**](https://example.com/)",
+		});
 		const open = spyOn(window, "open").mockReturnValue(null);
 		try {
-			const target = editor.view.dom.querySelector(selector);
-			expect(target).not.toBeNull();
 			const event = new MouseEvent("click", { button: 0 });
-			Object.defineProperty(event, "target", { value: target });
+			Object.defineProperty(event, "target", {
+				value: editor.view.dom.querySelector("strong"),
+			});
 
 			const handled = editor.view.someProp("handleClick", (handler) =>
 				handler(editor.view, 1, event),
 			);
 
-			expect(handled).toBe(true);
-			expect(open).toHaveBeenCalledTimes(1);
-			expect(open).toHaveBeenCalledWith("https://example.com/", "_blank");
-			expect(getMarkdown(editor)).toBe(markdown);
-			expect(editor.isEditable).toBe(true);
-		} finally {
-			open.mockRestore();
-			editor.destroy();
-		}
-	});
-
-	it("does not open a link on right-click", () => {
-		const editor = createEditor("[Example](https://example.com/)");
-		const open = spyOn(window, "open").mockReturnValue(null);
-		try {
-			const event = new MouseEvent("click", { button: 2 });
-			Object.defineProperty(event, "target", {
-				value: editor.view.dom.querySelector("a"),
-			});
-
-			editor.view.someProp("handleClick", (handler) =>
-				handler(editor.view, 1, event),
-			);
-
+			expect(handled).toBeFalsy();
 			expect(open).not.toHaveBeenCalled();
 		} finally {
 			open.mockRestore();
